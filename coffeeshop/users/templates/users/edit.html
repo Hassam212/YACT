@@ -1,0 +1,33 @@
+{% extends 'users/base.html' %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    {% block body %}
+    <div class="">
+    <form method="POST" class="bg-white shadow-md m-10 w-2/5 rounded px-8 pt-6 pb-8 mb-4" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="mb-2">
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="exampleInputEmail1">First name</label>
+        <div class="shadow text-gray-700  appearance-none border rounded py-2 px-3 mr-10" id="exampleInputEmail1" >{{user_form.first_name}}</div>
+    </div>
+    <div class="mb-2" >
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="exampleInputPassword1">Last name</label>
+        <div class="shadow text-gray-700  appearance-none border rounded py-2 px-3 mr-10" id="exampleInputPassword1">{{user_form.last_name}}</div>
+    </div>
+    <div class="mb-2" >
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="">Email address</label>
+        <div class="shadow text-gray-700  appearance-none border rounded py-2 px-3 mr-10" >{{user_form.email}}</div>
+    </div>
+     <div class="mb-2" >
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="">Photo</label>
+        <div class="shadow text-gray-700  appearance-none border rounded py-2 px-3 mr-10" >{{profile_form.photo}}</div>
+    </div>
+    <button class="text-white bg-green-500 px-5 py-2 my-5" type="submit">edit</button>
+</form>
+</div>
+{% endblock %}
+</body>
+</html>

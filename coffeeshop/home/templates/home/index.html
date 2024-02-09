@@ -1,0 +1,194 @@
+{% extends 'users/base.html' %}
+{% load static %}
+<html lang="en">
+<head>
+
+      <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Your Page Title</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <!-- jQuery, Popper.js, Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.4.1.js" integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+</head>
+<body>
+{% block body %}
+<div class=" row flex divide-solid divide-white">
+        <!-- Product Table on the left -->
+        <div  class="col-md-8 h-64 overflow-y-auto place-self-start object-left">
+            <!-- Table to display cart products -->
+            <table class="table table-bordered table-fixed min-w-64 table-auto " id="cartTable">
+                <thead>
+                    <tr>
+                        <th class="w-1/2">#</th>
+                        <th class="w-1/2">Product</th>
+                        <th class="w-1/2">Quantity</th>
+                        <th class="w-1/2">price</th>
+                        <th class="w-1/2">total</th>
+                        <th class="w-1/2">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="cartTableBody">
+                    <!-- Dynamic product rows will be added here using JavaScript -->
+                </tbody>
+            </table>
+        </div>
+        <!-- Open Shopping Cart on the right -->
+        <div class="col-md-4 object-right">
+            <div class="card">
+                <div class="card-body">
+                      <div class="grid grid-cols-2 gap-4 place-content-center h-48 object-right">
+                        {% for i in "12345678" %}
+                        <button type="button" class="btn btn-info btn-cart"
+                                onclick="OpenCart('cart{{i}}')">Open Cart {{i}}</button>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    <!-- Button to add product to the open cart -->
+    <!-- Product list -->
+
+</div>
+<div class="object-bottom size-auto">
+    <div class="card ">
+        <div class="card-body">
+            <div class="grid grid-cols-7 gap-10 place-content-center h-48">
+                {% for drink in departments %}
+                <button data-id="{{ drink.id }}" id="nm{{drink.id}}" class="btn atc btn-warning btn-cart "
+                        onclick="AddToOpenCart('{{ drink.id }}')">{{ drink.name }}</button>
+                    <div id="price{{drink.id}}" class="hidden">{{ drink.price }}</div>
+                 {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+
+    var carts = {
+        "cart1": {},
+        "cart2": {},
+        "cart3": {},
+    };
+     var openCartId = 'cart2';
+    $(document).ready(function () {
+        // تفعيل النقر على زر "Add to Cart"
+        $(document).on('click', '.atc', function () {
+            var item_id = $(this).data("id").toString();
+            var cart_id = $(this).data("cart").toString(); // استخراج السلة المستهدفة
+
+            // تحديث عدد العناصر في السلة
+            if (carts[cart_id][item_id] !== undefined) {
+                carts[cart_id][item_id] = carts[cart_id][item_id] + 1;
+            } else {
+                carts[cart_id][item_id] = 1;
+            }
+
+            // حفظ السلة في التخزين المحلي
+            localStorage.setItem(cart_id, JSON.stringify(carts[cart_id]));
+
+            // تحديث وعرض محتوى السلة تلقائيًا
+            DisplayCart(cart_id);
+        });
+
+        function DisplayCart(cart_id) {
+            var cartTableBody = document.getElementById("cartTableBody");
+            cartTableBody.innerHTML = "";
+
+            var cart = carts[cart_id];
+            if(localStorage.getItem(cart_id)==null){
+                var cart = {};
+              }
+            else{
+                cart = JSON.parse(localStorage.getItem(cart_id));
+                }
+            var cartIndex = 1;
+            for(var x in cart) {
+                var row = cartTableBody.insertRow();
+                var cell1 = row.insertCell(0);
+                var cell2 = row.insertCell(1);
+                var cell3 = row.insertCell(2);
+                var cell4 = row.insertCell(3);
+                var cell5 = row.insertCell(4);
+                var cell6 = row.insertCell(5);
+
+               var total =  cart[x] * parseFloat(document.getElementById("price" + x).innerHTML);
+
+                cell1.innerHTML = cartIndex;
+                cell2.innerHTML = document.getElementById("nm" + x).innerHTML;
+                cell3.innerHTML = cart[x];
+                cell4.innerHTML = document.getElementById("price" + x).innerHTML;
+                cell5.innerHTML = total;
+                // إضافة أزرار تقليل وزيادة الكمية
+                cell6.innerHTML = '<button class="btn btn-sm btn-danger" onclick="DecreaseQuantity(\'' + x + '\', \'' + cart_id + '\')">-</button> ' +
+                                   '<button class="btn btn-sm btn-success" onclick="IncreaseQuantity(\'' + x + '\', \'' + cart_id + '\')">+</button>';
+
+                cartIndex += 1;
+            }
+
+            // تحديث عدد العناصر في السلة
+            document.getElementById("cartItemCount").innerText = Object.keys(cart).length;
+
+            // تحديث محتوى السلة
+            $('[data-toggle="popover"]').popover();
+        }
+
+        window.OpenCart = function(cart_id) {
+            console.log(cart_id);
+            openCartId = cart_id;
+            DisplayCart(cart_id);
+        }
+
+        window.DecreaseQuantity = function(itemId, cart_id) {
+            carts = JSON.parse(localStorage.getItem(cart_id));
+            console.log(carts[itemId])
+            if (carts[itemId] > 1) {
+                carts[itemId] = carts[itemId] - 1;
+            } else {
+                delete carts[itemId];
+            }
+
+            localStorage.setItem(cart_id, JSON.stringify(carts));
+
+            DisplayCart(cart_id);
+        }
+
+        window.IncreaseQuantity = function(itemId, cart_id) {
+             carts = JSON.parse(localStorage.getItem(cart_id));
+            carts[itemId] = (carts[itemId] || 0) + 1;
+
+            localStorage.setItem(cart_id, JSON.stringify(carts));
+
+            DisplayCart(cart_id);
+        }
+
+        window.AddToOpenCart = function(itemId) {
+            console.log(itemId);
+            if(localStorage.getItem(openCartId)==null){
+                var carts = {};
+              }
+            else{
+                carts = JSON.parse(localStorage.getItem(openCartId));
+                }
+
+            if (carts[itemId] !== undefined) {
+                carts[itemId] = carts[itemId] + 1;
+            } else {
+                carts[itemId] = 1;
+            }
+
+            localStorage.setItem(openCartId, JSON.stringify(carts));
+
+            DisplayCart(openCartId);
+        }
+    });
+</script>
+{% endblock %}
+</body>
+</html>
